@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart.js 测试</title>
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous" onload="initChart()"></script>
+    <script src="https://unpkg.com/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous" onerror="console.error('Unpkg CDN加载失败')" onload="initChart()"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" crossorigin="anonymous" onerror="console.error('Cloudflare CDN加载失败')" onload="initChart()"></script>
+    <script>
+        function initChart() {
+            console.log('Chart.js加载状态:', typeof Chart !== 'undefined');
+            if (typeof Chart !== 'undefined') {
+                console.log('Chart.js已成功加载！');
+                // 创建一个简单的图表
+                const ctx = document.getElementById('testChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5'],
+                        datasets: [{
+                            label: '测试数据',
+                            data: [12, 19, 3, 5, 2],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    }
+                });
+            } else {
+                console.error('Chart.js加载失败！');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Chart.js 加载测试</h1>
+    <canvas id="testChart" width="400" height="200"></canvas>
+    <script>
+        // 页面加载完成后检查Chart.js状态
+        document.addEventListener('DOMContentLoaded', function() {
+            initChart();
+        });
+    </script>
+</body>
+</html>

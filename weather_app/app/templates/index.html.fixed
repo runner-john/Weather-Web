@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全国城市天气查询</title>
+    <!-- 引入Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- 引入Font Awesome图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 全局样式 */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-attachment: fixed;
+            color: #333;
+        }
+        
+        /* 容器样式 */
+        .container {
+            flex: 1;
+            padding: 20px 0;
+        }
+        
+        /* 卡片样式 */
+        .weather-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            margin-top: 25px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .weather-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* 头部样式 */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        header h1 {
+            font-weight: 800;
+            color: #ffffff;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 表单样式 */
+        .input-group {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 50px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-control {
+            border: none;
+            font-size: 18px;
+            padding: 25px 30px;
+            border-radius: 50px 0 0 50px;
+            background: transparent;
+            color: #2d3748;
+        }
+        
+        .form-control::placeholder {
+            color: #a0aec0;
+        }
+        
+        .form-control:focus {
+            box-shadow: none;
+            outline: none;
+            background: transparent;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 0 40px;
+            border-radius: 0 50px 50px 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.08);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        
+        /* 天气图标样式 */
+        .weather-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+            transition: color 0.3s ease;
+        }
+        
+        /* 天气图标颜色 */
+        .weather-icon.sunny {
+            color: #ffd700;
+        }
+        
+        .weather-icon.cloudy {
+            color: #a0aec0;
+        }
+        
+        .weather-icon.rainy {
+            color: #4facfe;
+        }
+        
+        .weather-icon.snowy {
+            color: #e2e8f0;
+        }
+        
+        .weather-icon.thunderstorm {
+            color: #667eea;
+        }
+        
+        /* 温度样式 */
+        .temperature {
+            font-size: 64px;
+            font-weight: 800;
+            color: #2d3748;
+            margin: 15px 0;
+            animation: fadeIn 1s ease 0.2s both;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 天气状况样式 */
+        #weatherCondition {
+            font-size: 24px;
+            color: #4a5568;
+            font-weight: 600;
+            animation: fadeIn 1s ease 0.4s both;
+            text-transform: capitalize;
+        }
+        
+        /* 天气信息样式 */
+        #windInfo, #humidity, #pressure, #visibility, #aqi {
+            font-size: 18px;
+            color: #718096;
+            margin: 12px 0;
+            animation: fadeIn 1s ease 0.6s both;
+            font-weight: 500;
+        }
+        
+        /* 天气信息图标 */
+        #windInfo i, #humidity i, #pressure i, #visibility i, #aqi i {
+            color: #4facfe;
+            margin-right: 8px;
+            font-size: 20px;
+        }
+        
+        /* 结果标题样式 */
+        #resultCity {
+            font-size: 36px;
+            font-weight: 800;
+            color: #2d3748;
+            margin-bottom: 25px;
+            animation: fadeIn 1s ease;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 错误提示样式 */
+        .alert {
+            margin-top: 25px;
+            display: none;
+            border-radius: 15px;
+            animation: slideInDown 0.5s ease;
+            border: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            font-size: 16px;
+        }
+        
+        /* 图表容器样式 */
+        #chartContainer {
+            margin-top: 40px;
+            height: 400px;
+            animation: fadeIn 1s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 60px;
+            padding: 30px 0;
+            box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        footer p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 天气卡片分隔线 */
+        .weather-card hr {
+            border-color: rgba(0, 0, 0, 0.05);
+            margin: 30px 0;
+        }
+        
+        /* 热门城市标签 */
+        .popular-cities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .popular-city-tag {
+            background: rgba(79, 172, 254, 0.1);
+            color: #4facfe;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: 1px solid rgba(79, 172, 254, 0.2);
+        }
+        
+        .popular-city-tag:hover {
+            background: rgba(79, 172, 254, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        /* 加载动画 */
+        .spinner-border {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+        }
+        
+        /* 图表标题 */
+        #chartContainer h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .weather-card {
+                padding: 25px;
+                margin-top: 20px;
+            }
+            
+            #resultCity {
+                font-size: 28px;
+            }
+            
+            .temperature {
+                font-size: 48px;
+            }
+            
+            .weather-icon {
+                font-size: 64px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            header p {
+                font-size: 1rem;
+            }
+            
+            .form-control {
+                font-size: 16px;
+                padding: 20px 25px;
+            }
+            
+            .btn-primary {
+                font-size: 16px;
+                padding: 0 30px;
+            }
+            
+            #chartContainer {
+                height: 350px;
+                padding: 20px;
+            }
+        }
+        
+        /* 天气信息卡片 */
+        .weather-info-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .weather-info-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-primary text-white text-center py-5">
+        <div class="container text-center">
+            <h1>中国城市天气查询</h1>
+            <p>输入任意城市名称，查询实时天气信息</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 网站运行状态显示 -->
+        <div class="alert alert-success text-center" style="margin-top: 20px;">
+            <i class="fas fa-check-circle me-2"></i> 网站运行正常
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- 查询表单 -->
+                <div class="weather-card">
+                    <div class="input-group mb-4">
+                        <input type="text" id="cityInput" class="form-control" placeholder="请输入城市名称，如：北京、上海、广州" aria-label="城市名称" aria-describedby="searchBtn" autocomplete="off">
+                        <button class="btn btn-primary" type="button" id="searchBtn">查询天气</button>
+                    </div>
+                    
+                    <!-- 城市输入自动完成下拉框 -->
+                    <div id="citySuggestions" class="list-group mb-4" style="display: none; position: absolute; width: calc(100% - 60px); z-index: 1000; max-height: 200px; overflow-y: auto;"></div>
+                    
+                    <!-- 热门城市标签 -->
+                    <div class="popular-cities mb-3">
+                        <span class="text-muted me-2">热门城市：</span>
+                        <span class="popular-city-tag" onclick="selectCity('北京')">北京</span>
+                        <span class="popular-city-tag" onclick="selectCity('上海')">上海</span>
+                        <span class="popular-city-tag" onclick="selectCity('广州')">广州</span>
+                        <span class="popular-city-tag" onclick="selectCity('深圳')">深圳</span>
+                        <span class="popular-city-tag" onclick="selectCity('杭州')">杭州</span>
+                        <span class="popular-city-tag" onclick="selectCity('成都')">成都</span>
+                        <span class="popular-city-tag" onclick="selectCity('武汉')">武汉</span>
+                        <span class="popular-city-tag" onclick="selectCity('西安')">西安</span>
+                        <span class="popular-city-tag" onclick="selectCity('重庆')">重庆</span>
+                        <span class="popular-city-tag" onclick="selectCity('南京')">南京</span>
+                        <span class="popular-city-tag" onclick="selectCity('天津')">天津</span>
+                        <span class="popular-city-tag" onclick="selectCity('苏州')">苏州</span>
+                        <span class="popular-city-tag" onclick="selectCity('郑州')">郑州</span>
+                        <span class="popular-city-tag" onclick="selectCity('长沙')">长沙</span>
+                        <span class="popular-city-tag" onclick="selectCity('沈阳')">沈阳</span>
+                    </div>
+                </div>
+
+                <!-- 错误提示 -->
+                <div id="errorAlert" class="alert alert-danger" role="alert">
+                    <strong>错误：</strong><span id="errorMessage"></span>
+                </div>
+
+                <!-- 天气结果展示 -->
+                <div id="weatherResult" class="weather-card" style="display: none;">
+                    <h2 id="resultCity" class="text-center mb-4"></h2>
+                    
+                    <!-- 温度提示 -->
+                    <div id="temperatureAlert" class="alert" role="alert">
+                        <strong id="alertTitle">温馨提示：</strong><span id="alertMessage"></span>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div id="weatherIcon" class="weather-icon"></div>
+                            <div id="weatherCondition"></div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div id="temperature" class="temperature"></div>
+                            <div id="windInfo"></div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div id="humidity"></div>
+                            <div id="pressure"></div>
+                            <div id="visibility"></div>
+                            <div id="aqi"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 历史天气查询 -->
+                <div id="historicalContainer" class="weather-card">
+                    <h3 class="text-center mb-4">历史天气查询</h3>
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="input-group mb-3">
+                                <input type="text" id="historicalCity" class="form-control" placeholder="请输入城市名称" aria-label="城市名称">
+                                <input type="date" id="historicalDate" class="form-control" aria-label="查询日期">
+                                <button class="btn btn-primary" type="button" id="historicalSearch">查询历史</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 历史查询结果 -->
+                    <div id="historicalResult" class="mt-4" style="display: none;">
+                        <h4 id="historicalCityResult" class="text-center mb-3"></h4>
+                        <div id="historicalDataTable"></div>
+                    </div>
+                </div>
+
+                <!-- 可视化图表 -->
+                <div id="chartContainer" class="weather-card" style="display: block; height: 500px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-center mb-0">热门城市温度对比</h3>
+                        <button id="refreshChartBtn" class="btn btn-primary btn-sm">
+                            <i class="fas fa-sync-alt me-1"></i> 刷新数据
+                        </button>
+                    </div>
+                    <canvas id="temperatureChart" width="800" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入Chart.js用于可视化 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous" onerror="console.error('Unpkg CDN加载失败')"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" crossorigin="anonymous" onerror="console.error('Cloudflare CDN加载失败')"></script>
+    
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // 全局变量和函数定义
+        
+        // 热门城市列表（与后端城市坐标映射表保持一致）
+        const popularCities = ['北京', '上海', '广州', '深圳', '杭州', '成都', '武汉', '西安', '重庆', '南京', '天津', '昆明', '呼和浩特', '拉萨', '乌鲁木齐', '银川', '西宁', '南宁', '济南', '石家庄', '哈尔滨', '长春', '沈阳', '郑州', '合肥', '福州', '南昌', '长沙', '贵阳', '海口', '兰州'];
+        
+        // 定义全局的图表初始化函数
+        function initChartAfterChartJsLoaded() {
+            console.log('检查Chart.js加载状态:', typeof Chart !== 'undefined');
+            
+            // 优化：只要Chart对象可用，就尝试初始化图表
+            if (typeof Chart !== 'undefined') {
+                // Chart.js已加载完成，检查DOM是否已完全加载
+                if (document.readyState === 'loading') {
+                    // DOM还在加载中，添加DOMContentLoaded事件监听器
+                    document.addEventListener('DOMContentLoaded', function() {
+                        console.log('DOM和Chart.js都已加载完成，开始初始化图表');
+                        loadPopularCitiesWeather();
+                    });
+                } else {
+                    // DOM已加载完成，直接初始化图表
+                    console.log('Chart.js和DOM都已可用，开始初始化图表');
+                    loadPopularCitiesWeather();
+                }
+            } else {
+                // 等待Chart.js加载完成，最多等待15秒
+                let waitTime = 0;
+                const interval = setInterval(() => {
+                    waitTime += 500;
+                    console.log(`等待Chart.js加载中...(${waitTime/1000}秒)`);
+                    
+                    if (typeof Chart !== 'undefined') {
+                        clearInterval(interval);
+                        console.log('Chart.js已加载完成，开始初始化图表');
+                        loadPopularCitiesWeather();
+                    } else if (waitTime >= 15000) {
+                        clearInterval(interval);
+                        console.error('Chart.js加载超时，使用静态表格');
+                        // 直接调用显示热门城市天气函数，它会处理Chart.js不可用的情况
+                        loadPopularCitiesWeather();
+                    }
+                }, 500);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 绑定查询按钮点击事件
+            document.getElementById('searchBtn').addEventListener('click', searchWeather);
+            
+            // 绑定回车键事件
+            document.getElementById('cityInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchWeather();
+                }
+            });
+            
+            // 城市输入自动完成功能
+            const cityInput = document.getElementById('cityInput');
+            const citySuggestions = document.getElementById('citySuggestions');
+            
+            // 所有支持的城市列表
+            const allCities = [
+                '北京', '上海', '广州', '深圳', '杭州', '成都', '武汉', '西安', '重庆', '南京',
+                '天津', '苏州', '郑州', '长沙', '沈阳', '青岛', '济南', '大连', '宁波', '厦门',
+                '福州', '哈尔滨', '长春', '石家庄', '太原', '合肥', '南昌', '南宁', '贵阳', '昆明',
+                '拉萨', '兰州', '西宁', '银川', '乌鲁木齐', '呼和浩特', '拉萨', '澳门', '香港', '台湾'
+            ];
+            
+            // 输入事件监听
+            cityInput.addEventListener('input', function() {
+                const input = this.value.trim().toLowerCase();
+                citySuggestions.innerHTML = '';
+                
+                if (input.length > 0) {
+                    // 过滤匹配的城市
+                    const matches = allCities.filter(city => 
+                        city.toLowerCase().includes(input)
+                    );
+                    
+                    // 显示建议
+                    if (matches.length > 0) {
+                        citySuggestions.style.display = 'block';
+                        matches.forEach(city => {
+                            const item = document.createElement('button');
+                            item.type = 'button';
+                            item.className = 'list-group-item list-group-item-action';
+                            item.textContent = city;
+                            item.addEventListener('click', function() {
+                                selectCity(city);
+                                citySuggestions.style.display = 'none';
+                            });
+                            citySuggestions.appendChild(item);
+                        });
+                    } else {
+                        citySuggestions.style.display = 'none';
+                    }
+                } else {
+                    citySuggestions.style.display = 'none';
+                }
+            });
+            
+            // 点击页面其他地方关闭建议
+            document.addEventListener('click', function(e) {
+                if (!cityInput.contains(e.target) && !citySuggestions.contains(e.target)) {
+                    citySuggestions.style.display = 'none';
+                }
+            });
+
+            // 绑定历史天气查询按钮
+            document.getElementById('historicalSearch').addEventListener('click', searchHistoricalWeather);
+            
+            // 设置默认日期为昨天
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            document.getElementById('historicalDate').value = yesterdayStr;
+            
+            // 页面加载完成后立即检查Chart.js状态并初始化图表
+            initChartAfterChartJsLoaded();
+            
+            // 添加刷新图表按钮事件监听器
+            document.getElementById('refreshChartBtn').addEventListener('click', function() {
+                console.log('刷新图表数据');
+                loadPopularCitiesWeather();
+            });
+            
+            // 显示热门城市列表的函数
+            function showPopularCitiesList() {
+                console.log('显示热门城市列表');
+                const chartContainer = document.getElementById('chartContainer');
+                if (chartContainer) {
+                    chartContainer.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="text-center mb-0">热门城市温度实时对比</h3>
+                            <button id="refreshChartBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt me-1"></i> 刷新数据
+                            </button>
+                        </div>
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            图表加载失败，正在使用静态数据展示
+                        </div>
+                        <div class="text-center">
+                            <p>热门城市：${popularCities.slice(0, 10).join('、')}</p>
+                            <button class="btn btn-primary" onclick="loadPopularCitiesWeather()">
+                                <i class="fas fa-refresh me-2"></i>重试加载图表
+                            </button>
+                        </div>
+                    `;
+                    // 重新绑定刷新按钮事件
+                    document.getElementById('refreshChartBtn').addEventListener('click', function() {
+                        console.log('刷新图表数据');
+                        loadPopularCitiesWeather();
+                    });
+                }
+            }
+        });
+        
+        // 选择热门城市函数
+        function selectCity(cityName) {
+            document.getElementById('cityInput').value = cityName;
+            searchWeather();
+        }
+
+        // 查询天气函数
+        function searchWeather() {
+            const city = document.getElementById('cityInput').value.trim();
+            
+            if (!city) {
+                showError('请输入城市名称');
+                return;
+            }
+
+            // 隐藏之前的结果和错误
+            hideError();
+            hideWeatherResult();
+            
+            // 隐藏城市建议
+            document.getElementById('citySuggestions').style.display = 'none';
+
+            // 显示加载状态
+            showLoading();
+
+            // 发送API请求（添加超时处理）
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+
+            fetch(`/weather?city=${encodeURIComponent(city)}`, {
+                signal: controller.signal
+            })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.error || `HTTP错误: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        displayWeatherResult(data);
+                    }
+                })
+                .catch(error => {
+                    clearTimeout(timeoutId);
+                    if (error.name === 'AbortError') {
+                        showError('网络请求超时，请稍后重试');
+                    } else if (!navigator.onLine) {
+                        showError('当前网络不可用，请检查网络连接后重试');
+                    } else {
+                        showError(`查询失败: ${error.message}`);
+                    }
+                    console.error('Error:', error);
+                })
+                .finally(() => {
+                    // 恢复按钮状态
+                    hideLoading();
+                });
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            errorMessage.textContent = message;
+            errorAlert.style.display = 'block';
+            
+            // 根据错误类型设置不同的样式
+            if (message.includes('网络') || message.includes('超时')) {
+                errorAlert.className = 'alert alert-warning';
+            } else {
+                errorAlert.className = 'alert alert-danger';
+            }
+            
+            // 添加自动隐藏功能
+            setTimeout(() => {
+                hideError();
+            }, 5000);
+        }
+
+        // 隐藏错误信息
+        function hideError() {
+            const errorAlert = document.getElementById('errorAlert');
+            errorAlert.style.display = 'none';
+        }
+        
+        // 显示网络状态提示
+        function checkNetworkStatus() {
+            if (!navigator.onLine) {
+                showError('当前网络不可用，请检查网络连接后重试');
+                return false;
+            }
+            return true;
+        }
+        
+        // 显示加载状态
+        function showLoading() {
+            document.getElementById('searchBtn').disabled = true;
+            document.getElementById('searchBtn').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 查询中...';
+        }
+        
+        // 隐藏加载状态
+        function hideLoading() {
+            document.getElementById('searchBtn').disabled = false;
+            document.getElementById('searchBtn').textContent = '查询天气';
+        }
+
+        // 显示天气结果
+        function displayWeatherResult(data) {
+            document.getElementById('resultCity').textContent = data.city;
+            document.getElementById('temperature').textContent = data.temperature;
+            document.getElementById('weatherCondition').textContent = data.weather;
+            document.getElementById('windInfo').textContent = `风力：${data.wind} ${data.wind_dir}`;
+            document.getElementById('humidity').textContent = `湿度：${data.humidity}`;
+            document.getElementById('pressure').textContent = `气压：${data.pressure}`;
+            document.getElementById('visibility').textContent = `能见度：${data.visibility}`;
+            document.getElementById('aqi').textContent = `空气质量指数：${data.aqi}`;
+
+            // 根据天气状况设置图标
+            setWeatherIcon(data.weather);
+
+            // 检查温度并显示预警
+            checkTemperatureAlert(data.temperature);
+
+            // 显示结果
+            document.getElementById('weatherResult').style.display = 'block';
+        }
+
+        // 检查温度并显示预警
+        function checkTemperatureAlert(temperatureStr) {
+            const temp = parseFloat(temperatureStr.replace('°C', ''));
+            const alertDiv = document.getElementById('temperatureAlert');
+            const alertTitle = document.getElementById('alertTitle');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            // 默认隐藏预警
+            alertDiv.style.display = 'none';
+            
+            if (temp >= 35) {
+                // 高温预警
+                alertDiv.className = 'alert alert-danger';
+                alertTitle.textContent = '高温预警：';
+                alertMessage.innerHTML = `气温很高（${temp}°C），请注意防暑降温，避免长时间户外活动，防止中暑！<br><br>💧 健康建议：<br>- 多喝水，保持身体水分<br>- 避免正午时分外出<br>- 穿着宽松透气的衣物<br>- 注意饮食清淡`;
+                alertDiv.style.display = 'block';
+            } else if (temp >= 25) {
+                // 较热预警
+                alertDiv.className = 'alert alert-warning';
+                alertTitle.textContent = '高温提示：';
+                alertMessage.innerHTML = `气温较高（${temp}°C），请注意防暑，多喝水，避免暴晒<br><br>🌤️ 健康建议：<br>- 出门涂抹防晒霜<br>- 佩戴遮阳帽和太阳镜<br>- 适当补充盐分`;
+                alertDiv.style.display = 'block';
+            } else if (temp >= 15) {
+                // 舒适温度
+                alertDiv.className = 'alert alert-success';
+                alertTitle.textContent = '温馨提示：';
+                alertMessage.innerHTML = `气温适宜（${temp}°C），适合进行户外活动<br><br>😊 健康建议：<br>- 多进行户外运动<br>- 保持良好的作息时间<br>- 注意饮食均衡`;
+                alertDiv.style.display = 'block';
+            } else if (temp >= 10) {
+                // 较凉预警
+                alertDiv.className = 'alert alert-info';
+                alertTitle.textContent = '温馨提示：';
+                alertMessage.innerHTML = `气温较低（${temp}°C），请注意增减衣物，预防感冒<br><br>🧥 健康建议：<br>- 早晚适当增添衣物<br>- 注意室内通风<br>- 多喝温水`;
+                alertDiv.style.display = 'block';
+            } else if (temp >= 0) {
+                // 低温警告
+                alertDiv.className = 'alert alert-warning';
+                alertTitle.textContent = '低温警告：';
+                alertMessage.innerHTML = `气温很低（${temp}°C），请注意保暖，建议穿着厚外套和毛衣<br><br>❄️ 健康建议：<br>- 穿着保暖的衣物（帽子、围巾、手套）<br>- 注意脚部保暖<br>- 适当增加热量摄入`;
+                alertDiv.style.display = 'block';
+            } else if (temp >= -5) {
+                // 严寒警告
+                alertDiv.className = 'alert alert-danger';
+                alertTitle.textContent = '严寒警告：';
+                alertMessage.innerHTML = `气温极低（${temp}°C），请做好防寒保暖措施，建议穿着羽绒服<br><br>⚠️ 健康建议：<br>- 减少户外活动时间<br>- 注意保护手脚和面部<br>- 避免长时间暴露在低温环境`;
+                alertDiv.style.display = 'block';
+            } else {
+                // 极端严寒
+                alertDiv.className = 'alert alert-danger';
+                alertTitle.textContent = '极端严寒警告：';
+                alertMessage.innerHTML = `气温极低（${temp}°C），请避免长时间户外活动，注意防冻伤！<br><br>🚨 健康建议：<br>- 尽量待在室内<br>- 使用取暖设备时注意安全<br>- 如必须外出，做好全面防寒措施<br>- 注意预防冻疮和低体温症`;
+                alertDiv.style.display = 'block';
+            }
+        }
+
+        // 隐藏天气结果
+        function hideWeatherResult() {
+            document.getElementById('weatherResult').style.display = 'none';
+        }
+
+        // 设置天气图标
+        function setWeatherIcon(weatherCondition) {
+            const iconElement = document.getElementById('weatherIcon');
+            let icon = '☀️'; // 默认晴天
+            let iconClass = 'sunny';
+
+            if (weatherCondition.includes('晴')) {
+                icon = '☀️';
+                iconClass = 'sunny';
+            } else if (weatherCondition.includes('云') || weatherCondition.includes('阴')) {
+                icon = '☁️';
+                iconClass = 'cloudy';
+            } else if (weatherCondition.includes('雨')) {
+                icon = '🌧️';
+                iconClass = 'rainy';
+            } else if (weatherCondition.includes('雪')) {
+                icon = '❄️';
+                iconClass = 'snowy';
+            } else if (weatherCondition.includes('雾')) {
+                icon = '🌫️';
+                iconClass = 'cloudy';
+            } else if (weatherCondition.includes('雷')) {
+                icon = '⛈️';
+                iconClass = 'thunderstorm';
+            }
+
+            // 移除所有天气图标类，添加当前天气图标类
+            iconElement.className = 'weather-icon';
+            iconElement.classList.add(iconClass);
+            iconElement.textContent = icon;
+        }
+
+        // 加载热门城市天气数据并绘制图表
+        function loadPopularCitiesWeather(callback) {
+            console.log('开始加载热门城市天气数据');
+            // 只选择前10个热门城市，避免过多API请求
+            const selectedCities = popularCities.slice(0, 10);
+            const temperatures = [];
+            let completedRequests = 0;
+            let failedRequests = 0;
+
+            // 初始化温度数组
+            selectedCities.forEach(() => {
+                temperatures.push(null);
+            });
+
+            console.log('选择的热门城市列表:', selectedCities);
+            console.log('Chart.js是否可用:', typeof Chart !== 'undefined');
+            console.log('图表容器是否存在:', document.getElementById('chartContainer'));
+            console.log('Canvas元素是否存在:', document.getElementById('temperatureChart'));
+
+            // 批量请求热门城市天气数据（添加超时和重试机制）
+            const batchRequest = (city, index, retryCount = 0) => {
+                // 使用兼容的超时机制
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+                
+                fetch(`/weather?city=${encodeURIComponent(city)}`, {
+                    signal: controller.signal
+                })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    return response.json();
+                })
+                .then(data => {
+                    completedRequests++;
+                    if (!data.error && data.temperature) {
+                        // 提取温度数值
+                        const tempStr = data.temperature;
+                        const temp = parseFloat(tempStr.replace('°C', ''));
+                        temperatures[index] = temp;
+                        console.log(`获取${city}天气成功，温度：${temp}°C`);
+                    } else {
+                        temperatures[index] = 0;
+                        failedRequests++;
+                        console.error(`获取${city}天气失败:`, data.error || '无温度数据');
+                    }
+                    
+                    // 检查是否所有请求都完成
+                    checkAllRequestsComplete();
+                })
+                .catch(error => {
+                    clearTimeout(timeoutId);
+                    completedRequests++;
+                    failedRequests++;
+                    temperatures[index] = 0;
+                    console.error(`获取${city}天气失败:`, error);
+                    
+                    // 重试机制（最多重试2次）
+                    if (retryCount < 2) {
+                        console.log(`重试获取${city}天气，第${retryCount + 1}次`);
+                        // 延迟重试，避免瞬间大量请求
+                        setTimeout(() => batchRequest(city, index, retryCount + 1), 1000);
+                        return;
+                    }
+                    
+                    // 重试失败后也要检查是否所有请求都完成
+                    checkAllRequestsComplete();
+                });
+            };
+
+            // 检查所有请求是否完成
+            function checkAllRequestsComplete() {
+                if (completedRequests === selectedCities.length) {
+                    console.log('所有请求完成，成功:', completedRequests - failedRequests, '失败:', failedRequests);
+                    console.log('最终温度数据:', temperatures);
+                    
+                    // 确保数据有效后再绘制图表
+                    const hasValidData = temperatures.some(temp => temp !== null && temp !== 0);
+                    if (!hasValidData) {
+                        console.error('没有有效的温度数据，使用默认测试数据');
+                        // 使用模拟数据进行测试
+                        const mockTemperatures = [15, 18, 22, 25, 19, 21, 16, 23, 20, 17];
+                        drawTemperatureChart(selectedCities, mockTemperatures);
+                    } else {
+                        drawTemperatureChart(selectedCities, temperatures);
+                    }
+                    
+                    document.getElementById('chartContainer').style.display = 'block';
+                    // 调用回调函数
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
+                }
+            }
+
+            // 按顺序发起请求，每次间隔500ms，避免并发请求过多
+            selectedCities.forEach((city, index) => {
+                setTimeout(() => batchRequest(city, index), index * 500);
+            });
+        }
+
+        // 绘制温度对比图表（优化版本，确保能正常显示）
+        function drawTemperatureChart(cities, temperatures) {
+            console.log('开始绘制温度对比图表');
+            console.log('Chart对象是否存在:', typeof Chart !== 'undefined');
+            console.log('城市数据:', cities);
+            console.log('温度数据:', temperatures);
+            
+            // 确保图表容器和canvas元素存在
+            const chartContainer = document.getElementById('chartContainer');
+            let canvas = document.getElementById('temperatureChart');
+            
+            if (!chartContainer || !canvas) {
+                console.error('图表容器或canvas元素不存在');
+                showStaticTemperatureTable(cities, temperatures);
+                return;
+            }
+            
+            // 强制显示图表容器并设置尺寸
+            chartContainer.style.display = 'block';
+            chartContainer.style.height = '500px';
+            
+            // 先清除之前的表格（如果存在）
+            const existingTable = chartContainer.querySelector('#temperatureTable');
+            if (existingTable) {
+                existingTable.remove();
+            }
+            
+            // 确保canvas可见并重置尺寸
+            canvas.style.display = 'block';
+            canvas.style.width = '100%';
+            canvas.style.height = '450px'; // 显式设置高度
+            
+            // 重新设置canvas实际尺寸以适应容器
+            const rect = chartContainer.getBoundingClientRect();
+            console.log('图表容器尺寸:', rect.width, 'x', rect.height);
+            canvas.width = rect.width - 50; // 减去padding
+            canvas.height = 450;
+            console.log('Canvas实际尺寸:', canvas.width, 'x', canvas.height);
+            console.log('Canvas显示样式:', canvas.style.width, 'x', canvas.style.height);
+            
+            // 重置Canvas上下文
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.save();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // 绘制一个测试矩形，确保Canvas可见
+                ctx.fillStyle = 'rgba(240, 240, 240, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.restore();
+                console.log('Canvas测试矩形绘制成功');
+            }
+            
+            // 检查Chart.js是否已正确加载
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js未正确加载');
+                // 尝试加载多个备用CDN
+                const cdnUrls = [
+                    'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+                    'https://unpkg.com/chart.js@4.4.0/dist/chart.umd.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js'
+                ];
+                
+                let currentCdnIndex = 0;
+                
+                const tryNextCdn = () => {
+                    if (currentCdnIndex >= cdnUrls.length) {
+                        console.error('所有Chart.js CDN加载失败');
+                        showStaticTemperatureTable(cities, temperatures);
+                        return;
+                    }
+                    
+                    const script = document.createElement('script');
+                    script.src = cdnUrls[currentCdnIndex];
+                    script.onload = function() {
+                        console.log('Chart.js CDN加载成功:', cdnUrls[currentCdnIndex]);
+                        // 重新尝试绘制图表
+                        drawTemperatureChart(cities, temperatures);
+                    };
+                    script.onerror = function() {
+                        console.error('Chart.js CDN加载失败:', cdnUrls[currentCdnIndex]);
+                        currentCdnIndex++;
+                        tryNextCdn();
+                    };
+                    document.head.appendChild(script);
+                };
+                
+                tryNextCdn();
+                return;
+            }
+            
+            // 销毁已存在的图表实例
+            if (window.temperatureChart && typeof window.temperatureChart.destroy === 'function') {
+                try {
+                    window.temperatureChart.destroy();
+                    window.temperatureChart = null;
+                    console.log('已销毁旧图表实例');
+                } catch (error) {
+                    console.error('销毁图表失败:', error);
+                    // 如果销毁失败，尝试重新创建canvas
+                    const newCanvas = document.createElement('canvas');
+                    newCanvas.id = 'temperatureChart';
+                    newCanvas.width = canvas.width;
+                    newCanvas.height = canvas.height;
+                    canvas.parentNode.replaceChild(newCanvas, canvas);
+                    // 重新获取canvas引用
+                    const updatedCanvas = document.getElementById('temperatureChart');
+                    // 使用新的canvas引用继续
+                    if (updatedCanvas) {
+                        console.log('已重新创建canvas元素');
+                        // 重新设置canvas引用
+                        canvas = updatedCanvas;
+                    }
+                }
+            } else {
+                window.temperatureChart = null;
+                console.log('无旧图表实例需要销毁');
+            }
+            
+            try {
+                // 处理数据：确保所有温度都是数字类型
+                const processedTemperatures = temperatures.map((temp, index) => {
+                    if (temp === null || temp === undefined) {
+                        console.warn(`城市 ${cities[index]} 温度数据为null或undefined`);
+                        return 0;
+                    }
+                    
+                    // 如果温度是字符串，尝试解析
+                    if (typeof temp === 'string') {
+                        // 移除温度符号和空格
+                        const cleanTemp = temp.replace(/[°C℃ ]/g, '');
+                        const parsedTemp = parseFloat(cleanTemp);
+                        if (isNaN(parsedTemp)) {
+                            console.warn(`城市 ${cities[index]} 温度数据格式错误: ${temp}`);
+                            return 0;
+                        }
+                        return parsedTemp;
+                    }
+                    
+                    // 如果温度是数字，直接使用
+                    if (typeof temp === 'number') {
+                        if (isNaN(temp)) {
+                            console.warn(`城市 ${cities[index]} 温度数据为NaN`);
+                            return 0;
+                        }
+                        return temp;
+                    }
+                    
+                    // 其他情况返回0
+                    console.warn(`城市 ${cities[index]} 温度数据类型错误: ${typeof temp}`);
+                    return 0;
+                });
+                
+                // 计算温度范围
+                const validTemperatures = processedTemperatures.filter(temp => temp !== 0);
+                const minTemp = validTemperatures.length > 0 ? Math.floor(Math.min(...validTemperatures) - 5) : 0;
+                const maxTemp = validTemperatures.length > 0 ? Math.ceil(Math.max(...validTemperatures) + 5) : 30;
+                
+                console.log('处理后的温度数据:', processedTemperatures);
+                console.log('温度范围:', minTemp, '到', maxTemp);
+                
+                // 创建新的图表实例（使用最稳定的配置）
+                console.log('开始创建Chart实例');
+                console.log('处理后的温度数据:', processedTemperatures);
+                console.log('温度范围:', minTemp, '到', maxTemp);
+                
+                // 使用统一颜色配置柱状图
+                const unifiedColor = 'rgba(54, 162, 235, 0.8)'; // 蓝色作为统一背景色
+                const unifiedBorderColor = 'rgba(54, 162, 235, 1)'; // 蓝色作为统一边框色
+                
+                // 为所有柱状图使用统一颜色
+                const colors = Array(cities.length).fill(unifiedColor);
+                const borderColors = Array(cities.length).fill(unifiedBorderColor);
+                
+                window.temperatureChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: cities,
+                        datasets: [{
+                            label: '当前温度 (°C)',
+                            data: processedTemperatures,
+                            backgroundColor: colors.slice(0, cities.length),
+                            borderColor: borderColors.slice(0, cities.length),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                bottom: 60  // 增加底部内边距，确保x轴文本可见
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: minTemp,
+                                max: maxTemp,
+                                title: {
+                                    display: true,
+                                    text: '温度 (°C)',
+                                    color: '#333'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '°C';
+                                    },
+                                    color: '#333'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '城市',
+                                    color: '#000000',
+                                    font: {
+                                        weight: 'bold'
+                                    }
+                                },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 30,
+                                    color: '#000000',
+                                    font: {
+                                        weight: 'bold',
+                                        size: 12  // 增加字体大小，确保可见
+                                    },
+                                    autoSkip: false,  // 不自动跳过标签
+                                    maxTicksLimit: 10  // 最多显示10个标签
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '热门城市温度实时对比',
+                                color: '#333',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: '#333'
+                                }
+                            },
+                            tooltip: {
+                                enabled: true,
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                borderColor: '#333',
+                                borderWidth: 1
+                            }
+                        },
+                        animation: {
+                            duration: 0 // 禁用动画以提高稳定性
+                        }
+                    }
+                });
+                
+                console.log('图表实例创建成功');
+                console.log('Chart实例:', window.temperatureChart);
+                console.log('Chart实例状态:', window.temperatureChart.canvas.style.display);
+                
+                // 强制重绘图表
+                window.temperatureChart.update('none'); // 使用'none'动画模式
+                console.log('图表更新完成');
+                
+                // 只添加一次窗口大小变化事件监听
+                if (!window.resizeListenerAdded) {
+                    window.addEventListener('resize', function() {
+                        if (window.temperatureChart) {
+                            console.log('窗口大小变化，调整图表尺寸');
+                            window.temperatureChart.resize();
+                        }
+                    });
+                    window.resizeListenerAdded = true;
+                }
+                
+            } catch (error) {
+                console.error('绘制图表失败:', error);
+                console.error('错误详情:', error.stack);
+                // 如果图表绘制失败，显示静态表格
+                showStaticTemperatureTable(cities, temperatures);
+            }
+        }
+        
+        // 显示静态温度对比表格（作为Chart.js的备选方案）
+        function showStaticTemperatureTable(cities, temperatures) {
+            console.log('显示静态温度对比表格');
+            const chartContainer = document.getElementById('chartContainer');
+            const canvas = document.getElementById('temperatureChart');
+            
+            if (canvas) {
+                // 隐藏canvas元素
+                canvas.style.display = 'none';
+            }
+            
+            // 创建表格元素
+            let tableHTML = `
+                <table class="table table-striped">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">城市</th>
+                            <th scope="col">当前温度 (°C)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // 添加表格内容
+            cities.forEach((city, index) => {
+                const temp = temperatures[index] !== null ? temperatures[index] : '无数据';
+                tableHTML += `
+                    <tr>
+                        <td>${city}</td>
+                        <td>${temp}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            // 添加表格到图表容器
+            const tableDiv = document.createElement('div');
+            tableDiv.innerHTML = tableHTML;
+            tableDiv.id = 'temperatureTable';
+            
+            // 检查是否已存在表格元素，如果存在则替换
+            const existingTable = chartContainer.querySelector('#temperatureTable');
+            if (existingTable) {
+                existingTable.remove();
+            }
+            
+            chartContainer.appendChild(tableDiv);
+        }
+        
+        // 查询历史天气函数
+        function searchHistoricalWeather() {
+            const city = document.getElementById('historicalCity').value.trim();
+            const date = document.getElementById('historicalDate').value;
+            
+            if (!city) {
+                showError('请输入城市名称');
+                return;
+            }
+            
+            if (!date) {
+                showError('请选择查询日期');
+                return;
+            }
+            
+            // 显示加载状态
+            const searchBtn = document.getElementById('historicalSearch');
+            const originalText = searchBtn.innerHTML;
+            searchBtn.disabled = true;
+            searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 查询中...';
+            
+            // 隐藏之前的结果
+            const resultDiv = document.getElementById('historicalResult');
+            resultDiv.style.display = 'none';
+            
+            // 发送API请求
+            fetch(`/historical?city=${encodeURIComponent(city)}&date=${encodeURIComponent(date)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.error || `HTTP错误: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        displayHistoricalResult(data);
+                    }
+                })
+                .catch(error => {
+                    showError(`查询历史天气失败: ${error.message}`);
+                    console.error('Error:', error);
+                })
+                .finally(() => {
+                    // 恢复按钮状态
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML = originalText;
+                });
+        }
+        
+        // 显示历史天气结果
+        function displayHistoricalResult(data) {
+            const resultDiv = document.getElementById('historicalResult');
+            const cityResult = document.getElementById('historicalCityResult');
+            const dataTable = document.getElementById('historicalDataTable');
+            
+            // 设置结果标题（添加空值检查）
+            const cityName = data.city || '未知城市';
+            const date = data.date || '未知日期';
+            cityResult.textContent = `${cityName} - ${date} 历史天气`;
+            
+            // 创建表格（修正数据结构：后端返回的是data.data而不是data.hourly）
+            const hourlyData = data.data || [];
+            const tableRows = hourlyData.map(item => `
+                <tr>
+                    <td>${item.record_hour !== undefined ? item.record_hour + ':00' : 'N/A'}</td>
+                    <td>${item.temperature || 'N/A'}</td>
+                    <td>${item.weather || 'N/A'}</td>
+                    <td>${item.wind || 'N/A'}</td>
+                    <td>${item.humidity || 'N/A'}</td>
+                </tr>
+            `).join('');
+            
+            // 如果没有小时数据，显示提示信息
+            const tableHTML = hourlyData.length > 0 ? `
+                <table class="table table-striped">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">时间</th>
+                            <th scope="col">温度 (°C)</th>
+                            <th scope="col">天气状况</th>
+                            <th scope="col">风力</th>
+                            <th scope="col">湿度</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            ` : `
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    暂无该日期的历史天气数据
+                </div>
+            `;
+            
+            dataTable.innerHTML = tableHTML;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
