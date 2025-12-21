@@ -455,6 +455,21 @@
                     </div>
                     <canvas id="temperatureChart" width="800" height="400"></canvas>
                 </div>
+
+                <!-- 未来一周天气预报 -->
+                <div id="weeklyForecastContainer" class="weather-card" style="display: block; height: 500px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-center mb-0">未来一周天气预报</h3>
+                        <div class="input-group" style="width: 300px;">
+                            <input type="text" id="forecastCityInput" class="form-control rounded-0 rounded-start" placeholder="输入城市名称" aria-label="城市名称" style="border-right: none; border-color: #0d6efd;">
+                            <button class="btn btn-primary rounded-0 rounded-end" type="button" id="forecastSearchBtn" style="border-left: none;">
+                                <i class="fas fa-search me-1"></i>查询
+                            </button>
+                        </div>
+                    </div>
+                    <canvas id="weeklyForecastChart" width="800" height="400"></canvas>
+                    <div id="weeklyForecastInfo" class="mt-4"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -1421,6 +1436,316 @@
             // 显示结果
             resultDiv.style.display = 'block';
         }
+
+        // 获取未来一周天气预报
+        function getWeeklyForecast() {
+            const city = document.getElementById('forecastCityInput').value.trim();
+            if (!city) {
+                showError('请输入城市名称');
+                return;
+            }
+
+            // 显示加载状态
+            const searchBtn = document.getElementById('forecastSearchBtn');
+            const originalText = searchBtn.innerHTML;
+            searchBtn.disabled = true;
+            searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 查询中...';
+
+            // 发送API请求
+            fetch(`/weekly-forecast?city=${encodeURIComponent(city)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.error || `HTTP错误: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        drawWeeklyForecastChart(data);
+                        displayWeeklyForecastInfo(data);
+                    }
+                })
+                .catch(error => {
+                    showError(`查询未来一周天气预报失败: ${error.message}`);
+                    console.error('Error:', error);
+                })
+                .finally(() => {
+                    // 恢复按钮状态
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML = originalText;
+                });
+        }
+
+        // 绘制未来一周天气预报折线图
+        function drawWeeklyForecastChart(data) {
+            const canvas = document.getElementById('weeklyForecastChart');
+            const ctx = canvas.getContext('2d');
+
+            // 销毁已存在的图表实例
+            if (window.weeklyForecastChart && typeof window.weeklyForecastChart.destroy === 'function') {
+                try {
+                    window.weeklyForecastChart.destroy();
+                    window.weeklyForecastChart = null;
+                } catch (error) {
+                    console.error('销毁图表失败:', error);
+                    // 如果销毁失败，尝试重新创建canvas
+                    const newCanvas = document.createElement('canvas');
+                    newCanvas.id = 'weeklyForecastChart';
+                    newCanvas.width = canvas.width;
+                    newCanvas.height = canvas.height;
+                    canvas.parentNode.replaceChild(newCanvas, canvas);
+                    // 重新获取canvas引用
+                    const updatedCanvas = document.getElementById('weeklyForecastChart');
+                    ctx = updatedCanvas.getContext('2d');
+                }
+            }
+
+            try {
+                const forecast = data.forecast;
+                const dates = forecast.map(item => {
+                    const date = new Date(item.date);
+                    return `${date.getMonth() + 1}/${date.getDate()}`;
+                });
+                const maxTemps = forecast.map(item => item.max_temp);
+                const minTemps = forecast.map(item => item.min_temp);
+
+                window.weeklyForecastChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: '最高温度 (°C)',
+                                data: maxTemps,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                fill: false,
+                                tension: 0.1
+                            },
+                            {
+                                label: '最低温度 (°C)',
+                                data: minTemps,
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                fill: false,
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                bottom: 20
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: '温度 (°C)',
+                                    color: '#333'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '°C';
+                                    },
+                                    color: '#333'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '日期',
+                                    color: '#000000',
+                                    font: {
+                                        weight: 'bold'
+                                    }
+                                },
+                                ticks: {
+                                    color: '#000000'
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `${data.city}未来一周温度变化趋势`,
+                                color: '#333',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: '#333'
+                                }
+                            },
+                            tooltip: {
+                                enabled: true,
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                borderColor: '#333',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y + '°C';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 0 // 禁用动画以提高稳定性
+                        }
+                    }
+                });
+
+                console.log('未来一周天气预报图表绘制成功');
+            } catch (error) {
+                console.error('绘制未来一周天气预报图表失败:', error);
+                console.error('错误详情:', error.stack);
+                showStaticWeeklyForecastTable(data);
+            }
+        }
+
+        // 显示未来一周天气预报静态表格（作为Chart.js的备选方案）
+        function showStaticWeeklyForecastTable(data) {
+            console.log('显示未来一周天气预报静态表格');
+            const chartContainer = document.getElementById('weeklyForecastContainer');
+            const canvas = document.getElementById('weeklyForecastChart');
+
+            if (canvas) {
+                // 隐藏canvas元素
+                canvas.style.display = 'none';
+            }
+
+            // 创建表格元素
+            const forecast = data.forecast;
+            let tableHTML = `
+                <table class="table table-striped">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">日期</th>
+                            <th scope="col">最高温度 (°C)</th>
+                            <th scope="col">最低温度 (°C)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // 添加表格内容
+            forecast.forEach(item => {
+                const date = new Date(item.date);
+                const formattedDate = `${date.getMonth() + 1}/${date.getDate()}`;
+                tableHTML += `
+                    <tr>
+                        <td>${formattedDate}</td>
+                        <td>${item.max_temp || 'N/A'}°C</td>
+                        <td>${item.min_temp || 'N/A'}°C</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            // 添加表格到图表容器
+            const tableDiv = document.createElement('div');
+            tableDiv.innerHTML = tableHTML;
+            tableDiv.id = 'weeklyForecastTable';
+
+            // 检查是否已存在表格元素，如果存在则替换
+            const existingTable = chartContainer.querySelector('#weeklyForecastTable');
+            if (existingTable) {
+                existingTable.remove();
+            }
+
+            chartContainer.appendChild(tableDiv);
+        }
+
+        // 显示未来一周天气预报详细信息
+        function displayWeeklyForecastInfo(data) {
+            const infoDiv = document.getElementById('weeklyForecastInfo');
+            const forecast = data.forecast;
+
+            let infoHTML = `<h4>${data.city}未来一周天气预报详情</h4>`;
+            infoHTML += '<div class="row">';
+
+            forecast.forEach(item => {
+                const date = new Date(item.date);
+                const dayOfWeek = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()];
+                const formattedDate = `${date.getMonth() + 1}/${date.getDate()}`;
+
+                infoHTML += `
+                    <div class="col-md-12 mb-3">
+                        <div class="weather-info-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5>${dayOfWeek} (${formattedDate})</h5>
+                                <div>
+                                    <span class="badge bg-danger me-2">最高: ${item.max_temp}°C</span>
+                                    <span class="badge bg-primary">最低: ${item.min_temp}°C</span>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <p><strong>体感温度:</strong> ${item.max_apparent_temp}°C (最高) / ${item.min_apparent_temp}°C (最低)</p>
+                                <p><strong>降水量:</strong> ${item.precipitation} mm</p>
+                                <p><strong>最大风速:</strong> ${item.wind_speed_max} km/h</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            infoHTML += '</div>';
+            infoDiv.innerHTML = infoHTML;
+        }
+
+        // 为未来一周天气预报查询按钮添加事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            const forecastSearchBtn = document.getElementById('forecastSearchBtn');
+            if (forecastSearchBtn) {
+                forecastSearchBtn.addEventListener('click', getWeeklyForecast);
+            }
+
+            // 为城市输入框添加回车事件
+            const forecastCityInput = document.getElementById('forecastCityInput');
+            if (forecastCityInput) {
+                forecastCityInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        getWeeklyForecast();
+                    }
+                });
+            }
+
+            // 默认查询北京的未来一周天气预报
+            document.getElementById('forecastCityInput').value = '北京';
+            getWeeklyForecast();
+        });
     </script>
 </body>
 </html>

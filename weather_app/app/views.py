@@ -284,6 +284,101 @@ def get_historical_weather():
     except Exception as e:
         return jsonify({'error': f'查询历史天气失败: {str(e)}'}), 500
 
+@app.route('/weekly-forecast')
+@limiter.limit("60 per minute")
+def get_weekly_forecast():
+    city = request.args.get('city')
+    if not city:
+        return jsonify({'error': '请提供城市名称'}), 400
+
+    try:
+        # 标准化城市名称：移除'市'后缀
+        normalized_city = city.replace('市', '')
+        
+        # 使用别名（如果有）
+        city_name = city_aliases.get(normalized_city, normalized_city)
+        
+        # 首先检查是否在城市坐标映射表中
+        if city_name in city_coordinates:
+            location = city_coordinates[city_name]
+            latitude = location['latitude']
+            longitude = location['longitude']
+            city_name = location['name']
+        else:
+            # 如果不在映射表中，调用地理编码API
+            geo_params = {
+                'name': city_name,
+                'country': 'CN',  # 指定中国
+                'count': 5,  # 获取更多结果
+                'language': 'zh'
+            }
+            
+            geo_response = requests.get(GEOCODING_API_URL, params=geo_params, timeout=5)
+            geo_response.raise_for_status()
+            geo_data = geo_response.json()
+            
+            if not geo_data.get('results'):
+                return jsonify({'error': '未找到该城市，请确认城市名称是否正确'}), 404
+            
+            # 获取经纬度
+            location = geo_data['results'][0]
+            latitude = location['latitude']
+            longitude = location['longitude']
+            city_name = location['name']
+        
+        # 最终标准化：确保存储的城市名称没有'市'后缀
+        city_name = city_name.replace('市', '')
+        
+        # 调用Open-Meteo API获取未来一周天气预报
+        weather_params = {
+            'latitude': latitude,
+            'longitude': longitude,
+            'daily': 'temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_sum,wind_speed_10m_max',
+            'timezone': 'Asia/Shanghai',
+            'forecast_days': 7  # 未来7天
+        }
+        
+        weather_response = requests.get(WEATHER_API_URL, params=weather_params, timeout=5)
+        weather_response.raise_for_status()
+        weather_data = weather_response.json()
+        
+        if not weather_data.get('daily'):
+            return jsonify({'error': '获取天气信息失败: 数据格式错误'}), 400
+        
+        # 提取未来一周天气数据
+        daily_data = weather_data['daily']
+        
+        # 格式化输出
+        forecast_data = []
+        for i in range(len(daily_data['time'])):
+            forecast_data.append({
+                'date': daily_data['time'][i],
+                'max_temp': daily_data['temperature_2m_max'][i],
+                'min_temp': daily_data['temperature_2m_min'][i],
+                'max_apparent_temp': daily_data['apparent_temperature_max'][i],
+                'min_apparent_temp': daily_data['apparent_temperature_min'][i],
+                'precipitation': daily_data['precipitation_sum'][i],
+                'wind_speed_max': daily_data['wind_speed_10m_max'][i]
+            })
+        
+        result = {
+            'city': city_name,
+            'forecast': forecast_data
+        }
+        
+        return jsonify(result), 200
+        
+    except requests.exceptions.Timeout:
+        return jsonify({'error': '网络连接超时，请稍后重试'}), 500
+    except requests.exceptions.ConnectionError:
+        return jsonify({'error': '网络连接失败，请检查网络设置'}), 500
+    except requests.exceptions.HTTPError as e:
+        return jsonify({'error': f'API请求失败: {str(e)}'}), 500
+    except (KeyError, IndexError) as e:
+        return jsonify({'error': '数据解析失败，请确认城市名称是否正确'}), 400
+    except Exception as e:
+        return jsonify({'error': f'获取天气信息失败: {str(e)}'}), 500
+
 @app.route('/health')
 def health_check():
     """健康检查端点"""
