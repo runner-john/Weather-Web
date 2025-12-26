@@ -8,85 +8,137 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <!-- 引入Font Awesome图标 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入Google字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #a8b8ff 0%, #c1b0ff 50%, #ff8be0 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-attachment: fixed;
             color: #333;
+            overflow-x: hidden;
         }
         
         /* 容器样式 */
         .container {
             flex: 1;
             padding: 20px 0;
+            max-width: 1200px;
         }
         
         /* 卡片样式 */
         .weather-card {
             background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(15px);
-            border-radius: 25px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 30px;
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            box-shadow: 0 15px 60px rgba(0, 0, 0, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 35px;
             margin-top: 25px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .weather-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .weather-card:hover::before {
+            left: 100%;
         }
         
         .weather-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            transform: translateY(-12px);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.25);
         }
         
         /* 头部样式 */
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 30px 0;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+            padding: 40px 0;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.05)" fill-opacity="1" d="M0,128L48,138.7C96,149,192,171,288,181.3C384,192,480,192,576,170.7C672,149,768,107,864,112C960,117,1056,171,1152,181.3C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        header .container {
+            position: relative;
+            z-index: 1;
         }
         
         header h1 {
             font-weight: 800;
             color: #ffffff;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 3rem;
+            margin-bottom: 12px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            letter-spacing: -0.5px;
         }
         
         header p {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.95);
             margin-bottom: 0;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            font-weight: 500;
         }
         
         /* 表单样式 */
         .input-group {
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-            border-radius: 50px;
+            box-shadow: 0 12px 45px rgba(0, 0, 0, 0.2);
+            border-radius: 60px;
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            position: relative;
         }
         
         .form-control {
             border: none;
-            font-size: 18px;
-            padding: 25px 30px;
-            border-radius: 50px 0 0 50px;
+            font-size: 19px;
+            padding: 28px 35px;
+            border-radius: 60px 0 0 60px;
             background: transparent;
             color: #2d3748;
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
         
         .form-control::placeholder {
             color: #a0aec0;
+            font-weight: 400;
         }
         
         .form-control:focus {
@@ -98,251 +150,385 @@
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 600;
-            padding: 0 40px;
-            border-radius: 0 50px 50px 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            padding: 0 50px;
+            border-radius: 0 60px 60px 0;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
         
         .btn-primary:hover {
-            transform: scale(1.08);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transform: scale(1.12);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.6);
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
         }
         
         /* 天气图标样式 */
         .weather-icon {
-            font-size: 80px;
-            margin-bottom: 20px;
-            animation: fadeIn 1s ease;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-            transition: color 0.3s ease;
+            font-size: 100px;
+            margin-bottom: 25px;
+            animation: fadeIn 1.2s ease;
+            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.2));
+            transition: color 0.4s ease, transform 0.4s ease;
+        }
+        
+        .weather-card:hover .weather-icon {
+            transform: scale(1.1);
         }
         
         /* 天气图标颜色 */
         .weather-icon.sunny {
             color: #ffd700;
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
         }
         
         .weather-icon.cloudy {
             color: #a0aec0;
+            text-shadow: 0 0 30px rgba(160, 174, 192, 0.5);
         }
         
         .weather-icon.rainy {
             color: #4facfe;
+            text-shadow: 0 0 40px rgba(79, 172, 254, 0.5);
         }
         
         .weather-icon.snowy {
             color: #e2e8f0;
+            text-shadow: 0 0 30px rgba(226, 232, 240, 0.7);
         }
         
         .weather-icon.thunderstorm {
             color: #667eea;
+            text-shadow: 0 0 50px rgba(102, 126, 234, 0.6);
         }
         
         /* 温度样式 */
         .temperature {
-            font-size: 64px;
+            font-size: 80px;
             font-weight: 800;
             color: #2d3748;
-            margin: 15px 0;
-            animation: fadeIn 1s ease 0.2s both;
-            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            animation: fadeIn 1.2s ease 0.3s both;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            letter-spacing: -2px;
         }
         
         /* 天气状况样式 */
         #weatherCondition {
-            font-size: 24px;
+            font-size: 28px;
             color: #4a5568;
             font-weight: 600;
-            animation: fadeIn 1s ease 0.4s both;
+            animation: fadeIn 1.2s ease 0.5s both;
             text-transform: capitalize;
+            letter-spacing: 0.5px;
         }
         
         /* 天气信息样式 */
         #windInfo, #humidity, #pressure, #visibility, #aqi {
-            font-size: 18px;
+            font-size: 20px;
             color: #718096;
-            margin: 12px 0;
-            animation: fadeIn 1s ease 0.6s both;
+            margin: 15px 0;
+            animation: fadeIn 1.2s ease 0.7s both;
             font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .weather-card:hover #windInfo, 
+        .weather-card:hover #humidity, 
+        .weather-card:hover #pressure, 
+        .weather-card:hover #visibility, 
+        .weather-card:hover #aqi {
+            color: #4a5568;
         }
         
         /* 天气信息图标 */
         #windInfo i, #humidity i, #pressure i, #visibility i, #aqi i {
             color: #4facfe;
-            margin-right: 8px;
-            font-size: 20px;
+            margin-right: 10px;
+            font-size: 24px;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        
+        .weather-card:hover #windInfo i, 
+        .weather-card:hover #humidity i, 
+        .weather-card:hover #pressure i, 
+        .weather-card:hover #visibility i, 
+        .weather-card:hover #aqi i {
+            color: #667eea;
+            transform: scale(1.15);
         }
         
         /* 结果标题样式 */
         #resultCity {
-            font-size: 36px;
+            font-size: 42px;
             font-weight: 800;
             color: #2d3748;
-            margin-bottom: 25px;
-            animation: fadeIn 1s ease;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            animation: fadeIn 1.2s ease;
+            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            letter-spacing: -1px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        #resultCity::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+            animation: slideIn 0.8s ease 0.5s both;
         }
         
         /* 错误提示样式 */
         .alert {
             margin-top: 25px;
             display: none;
-            border-radius: 15px;
-            animation: slideInDown 0.5s ease;
+            border-radius: 20px;
+            animation: slideInDown 0.6s ease;
             border: none;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            padding: 20px;
-            font-size: 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            font-size: 17px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
         
         /* 图表容器样式 */
-        #chartContainer {
-            margin-top: 40px;
-            height: 400px;
-            animation: fadeIn 1s ease;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        #chartContainer, #weeklyForecastContainer {
+            margin-top: 50px;
+            height: 550px;
+            animation: fadeIn 1.2s ease;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 35px;
+            box-shadow: 0 15px 60px rgba(0, 0, 0, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         /* 页脚样式 */
         footer {
             background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            margin-top: 60px;
-            padding: 30px 0;
-            box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 80px;
+            padding: 40px 0;
+            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 50"><path fill="rgba(255,255,255,0.98)" fill-opacity="1" d="M0,0L60,13.3C120,27,240,53,360,58.7C480,64,600,43,720,32C840,21,960,21,1080,26.7C1200,32,1320,43,1380,48L1440,53L1440,53L1380,53C1320,53,1200,53,1080,53C960,53,840,53,720,53C600,53,480,53,360,53C240,53,120,53,60,53L0,53Z"></path></svg>');
+            background-size: cover;
+            background-position: center;
         }
         
         footer p {
             color: #718096;
-            font-size: 14px;
+            font-size: 15px;
             margin-bottom: 0;
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
         
         /* 动画效果 */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
         @keyframes slideInDown {
-            from { opacity: 0; transform: translateY(-30px); }
+            from { opacity: 0; transform: translateY(-40px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { width: 0; }
+            to { width: 80px; }
         }
         
         /* 天气卡片分隔线 */
         .weather-card hr {
-            border-color: rgba(0, 0, 0, 0.05);
-            margin: 30px 0;
+            border-color: rgba(0, 0, 0, 0.08);
+            margin: 35px 0;
+            border-width: 2px;
+            border-radius: 1px;
         }
         
         /* 热门城市标签 */
         .popular-cities {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px;
+            margin-top: 25px;
             justify-content: center;
         }
         
         .popular-city-tag {
-            background: rgba(79, 172, 254, 0.1);
+            background: rgba(79, 172, 254, 0.15);
             color: #4facfe;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 15px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.35s ease;
             font-weight: 500;
-            border: 1px solid rgba(79, 172, 254, 0.2);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            letter-spacing: 0.3px;
         }
         
         .popular-city-tag:hover {
-            background: rgba(79, 172, 254, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+            background: rgba(79, 172, 254, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+            border-color: rgba(79, 172, 254, 0.5);
         }
         
         /* 加载动画 */
         .spinner-border {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
         }
         
         /* 图表标题 */
-        #chartContainer h3 {
-            font-size: 24px;
+        #chartContainer h3, #weeklyForecastContainer h3 {
+            font-size: 28px;
             font-weight: 700;
             color: #2d3748;
-            margin-bottom: 20px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            letter-spacing: -0.5px;
         }
         
         /* 响应式设计 */
         @media (max-width: 768px) {
             .weather-card {
-                padding: 25px;
+                padding: 28px;
                 margin-top: 20px;
+                border-radius: 20px;
             }
             
             #resultCity {
-                font-size: 28px;
+                font-size: 32px;
             }
             
             .temperature {
-                font-size: 48px;
+                font-size: 60px;
             }
             
             .weather-icon {
-                font-size: 64px;
+                font-size: 80px;
             }
             
             header h1 {
-                font-size: 2rem;
+                font-size: 2.25rem;
             }
             
             header p {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
             
             .form-control {
-                font-size: 16px;
-                padding: 20px 25px;
+                font-size: 17px;
+                padding: 24px 28px;
             }
             
             .btn-primary {
-                font-size: 16px;
-                padding: 0 30px;
+                font-size: 17px;
+                padding: 0 40px;
             }
             
-            #chartContainer {
-                height: 350px;
-                padding: 20px;
+            #chartContainer, #weeklyForecastContainer {
+                height: 450px;
+                padding: 25px;
+                border-radius: 20px;
+            }
+            
+            #chartContainer h3, #weeklyForecastContainer h3 {
+                font-size: 24px;
+            }
+            
+            #weatherCondition {
+                font-size: 24px;
+            }
+            
+            #windInfo, #humidity, #pressure, #visibility, #aqi {
+                font-size: 18px;
             }
         }
         
         /* 天气信息卡片 */
         .weather-info-card {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 10px 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            transition: all 0.35s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
         
         .weather-info-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 历史天气查询表单 */
+        #historicalSearch {
+            border-radius: 0 60px 60px 0;
+            padding: 0 45px;
+        }
+        
+        /* 未来天气预报表单 */
+        #forecastSearchBtn {
+            border-radius: 0 60px 60px 0;
+            padding: 0 45px;
+        }
+        
+        /* 刷新按钮 */
+        #refreshChartBtn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 30px;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.35s ease;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        #refreshChartBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+        
+        /* 图表画布样式 */
+        .chart-canvas {
+            width: 100%;
+            height: 450px;
+            display: block;
+        }
+        
+        /* 温度提示 */
+        #temperatureAlert {
+            border-radius: 20px;
+            padding: 20px;
+            font-size: 16px;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -446,18 +632,18 @@
                 </div>
 
                 <!-- 可视化图表 -->
-                <div id="chartContainer" class="weather-card" style="display: block; height: 500px;">
+                <div id="chartContainer" class="weather-card" style="display: block; height: auto; min-height: 400px; padding-bottom: 20px;">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h3 class="text-center mb-0">热门城市温度对比</h3>
                         <button id="refreshChartBtn" class="btn btn-primary btn-sm">
                             <i class="fas fa-sync-alt me-1"></i> 刷新数据
                         </button>
                     </div>
-                    <canvas id="temperatureChart" width="800" height="400"></canvas>
+                    <canvas id="temperatureChart" class="chart-canvas"></canvas>
                 </div>
 
                 <!-- 未来一周天气预报 -->
-                <div id="weeklyForecastContainer" class="weather-card" style="display: block; height: 500px;">
+                <div id="weeklyForecastContainer" class="weather-card" style="display: block; min-height: 400px; padding-bottom: 20px;">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h3 class="text-center mb-0">未来一周天气预报</h3>
                         <div class="input-group" style="width: 300px;">
@@ -467,17 +653,82 @@
                             </button>
                         </div>
                     </div>
-                    <canvas id="weeklyForecastChart" width="800" height="400"></canvas>
+                    <canvas id="weeklyForecastChart" class="chart-canvas"></canvas>
                     <div id="weeklyForecastInfo" class="mt-4"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 引入Chart.js用于可视化 -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous" onerror="console.error('Unpkg CDN加载失败')"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" crossorigin="anonymous" onerror="console.error('Cloudflare CDN加载失败')"></script>
+    <!-- 引入Chart.js用于可视化（智能fallback机制） -->
+    <script>
+        // Chart.js CDN列表，按优先级排序，使用最新稳定版
+        const chartJsCdnUrls = [
+            'https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.8/chart.umd.min.js',
+            'https://unpkg.com/chart.js@4.4.8/dist/chart.umd.min.js'
+        ];
+        
+        // 尝试加载Chart.js的函数
+        function loadChartJs(urls, index = 0) {
+            if (index >= urls.length) {
+                console.error('所有Chart.js CDN加载失败');
+                return;
+            }
+            
+            console.log(`尝试加载Chart.js: ${urls[index]}`);
+            
+            const script = document.createElement('script');
+            script.src = urls[index];
+            script.crossOrigin = 'anonymous';
+            
+            script.onload = function() {
+                console.log(`Chart.js加载成功: ${urls[index]}`);
+            };
+            
+            script.onerror = function() {
+                console.error(`Chart.js加载失败: ${urls[index]}`);
+                // 尝试下一个CDN
+                loadChartJs(urls, index + 1);
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        // 开始加载Chart.js
+        loadChartJs(chartJsCdnUrls);
+        
+        // Chart.js全局配置，确保所有图表使用一致的字体
+        window.addEventListener('load', function() {
+            if (typeof Chart !== 'undefined') {
+                // 简化字体配置，使用更基础的字体族
+                Chart.defaults.font.family = 'Arial, sans-serif';
+                Chart.defaults.font.size = 12;
+                Chart.defaults.font.weight = 'normal';
+                
+                // 确保图表元素有足够的空间
+                Chart.defaults.plugins.legend.labels.padding = 15;
+                Chart.defaults.layout.padding = {
+                    top: 20,
+                    right: 30,
+                    left: 30,
+                    bottom: 80
+                };
+                
+                console.log('Chart.js全局配置已设置');
+            }
+        });
+        
+        // 添加Canvas文本渲染优化
+        window.addEventListener('beforeprint', function() {
+            if (typeof Chart !== 'undefined' && window.temperatureChart) {
+                window.temperatureChart.resize();
+            }
+            if (typeof Chart !== 'undefined' && window.weeklyForecastChart) {
+                window.weeklyForecastChart.resize();
+            }
+        });
+    </script>
     
     <!-- 引入Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -666,22 +917,46 @@
             // 显示加载状态
             showLoading();
 
-            // 发送API请求（添加超时处理）
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+            // 定义重试配置
+            const maxRetries = 2;
+            let retryCount = 0;
+            
+            // 发送API请求（添加超时处理和重试机制）
+            function sendRequest() {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
 
-            fetch(`/weather?city=${encodeURIComponent(city)}`, {
-                signal: controller.signal
-            })
-                .then(response => {
-                    clearTimeout(timeoutId);
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.error || `HTTP错误: ${response.status}`);
-                        });
-                    }
-                    return response.json();
+                return fetch(`/weather?city=${encodeURIComponent(city)}`, {
+                    signal: controller.signal
                 })
+                    .then(response => {
+                        clearTimeout(timeoutId);
+                        if (!response.ok) {
+                            return response.json().then(err => {
+                                throw new Error(err.error || `HTTP错误: ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        clearTimeout(timeoutId);
+                        
+                        // 处理超时错误，进行重试
+                        if ((error.name === 'AbortError' || error.name === 'TimeoutError') && retryCount < maxRetries) {
+                            retryCount++;
+                            console.log(`第${retryCount}次重试获取天气信息...`);
+                            // 短暂延迟后重试
+                            return new Promise(resolve => setTimeout(resolve, 500 * retryCount))
+                                .then(sendRequest);
+                        }
+                        
+                        // 其他错误或重试次数用尽，抛出异常
+                        throw error;
+                    });
+            }
+            
+            // 执行请求
+            sendRequest()
                 .then(data => {
                     if (data.error) {
                         showError(data.error);
@@ -690,7 +965,6 @@
                     }
                 })
                 .catch(error => {
-                    clearTimeout(timeoutId);
                     if (error.name === 'AbortError') {
                         showError('网络请求超时，请稍后重试');
                     } else if (!navigator.onLine) {
@@ -994,30 +1268,20 @@
                 existingTable.remove();
             }
             
-            // 确保canvas可见并重置尺寸
+            // 确保canvas可见，由Chart.js控制尺寸
             canvas.style.display = 'block';
             canvas.style.width = '100%';
-            canvas.style.height = '450px'; // 显式设置高度
+            canvas.style.height = '450px'; // 明确设置高度以确保可见
             
-            // 重新设置canvas实际尺寸以适应容器
-            const rect = chartContainer.getBoundingClientRect();
-            console.log('图表容器尺寸:', rect.width, 'x', rect.height);
-            canvas.width = rect.width - 50; // 减去padding
-            canvas.height = 450;
-            console.log('Canvas实际尺寸:', canvas.width, 'x', canvas.height);
-            console.log('Canvas显示样式:', canvas.style.width, 'x', canvas.style.height);
+            // 移除手动设置的像素尺寸，让Chart.js完全控制
+            canvas.removeAttribute('width');
+            canvas.removeAttribute('height');
             
-            // 重置Canvas上下文
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.save();
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                // 绘制一个测试矩形，确保Canvas可见
-                ctx.fillStyle = 'rgba(240, 240, 240, 0.5)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.restore();
-                console.log('Canvas测试矩形绘制成功');
-            }
+            console.log('Canvas样式设置:', canvas.style.width, 'x', canvas.style.height);
+            console.log('Canvas属性:', canvas.width, 'x', canvas.height);
+            console.log('Canvas类名:', canvas.className);
+            console.log('Canvas父容器:', canvas.parentNode);
+            console.log('Canvas父容器样式:', canvas.parentNode.style);
             
             // 检查Chart.js是否已正确加载
             if (typeof Chart === 'undefined') {
@@ -1068,14 +1332,20 @@
                     // 如果销毁失败，尝试重新创建canvas
                     const newCanvas = document.createElement('canvas');
                     newCanvas.id = 'temperatureChart';
-                    newCanvas.width = canvas.width;
-                    newCanvas.height = canvas.height;
+                    newCanvas.className = 'chart-canvas'; // 添加正确的CSS类
                     canvas.parentNode.replaceChild(newCanvas, canvas);
                     // 重新获取canvas引用
                     const updatedCanvas = document.getElementById('temperatureChart');
                     // 使用新的canvas引用继续
                     if (updatedCanvas) {
                         console.log('已重新创建canvas元素');
+                        // 设置样式
+                        updatedCanvas.style.display = 'block';
+                        updatedCanvas.style.width = '100%';
+                        updatedCanvas.style.height = 'auto';
+                        // 移除手动设置的像素尺寸，让Chart.js完全控制
+                        updatedCanvas.removeAttribute('width');
+                        updatedCanvas.removeAttribute('height');
                         // 重新设置canvas引用
                         canvas = updatedCanvas;
                     }
@@ -1163,7 +1433,10 @@
                             data: processedTemperatures,
                             backgroundColor: colors.slice(0, cities.length),
                             borderColor: borderColors.slice(0, cities.length),
-                            borderWidth: 1
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            barThickness: 35,
+                            maxBarThickness: 50
                         }]
                     },
                     options: {
@@ -1171,7 +1444,10 @@
                         maintainAspectRatio: false,
                         layout: {
                             padding: {
-                                bottom: 60  // 增加底部内边距，确保x轴文本可见
+                                top: 10,
+                                right: 20,
+                                left: 20,
+                                bottom: 80  // 增加底部内边距，确保x轴文本可见
                             }
                         },
                         scales: {
@@ -1182,16 +1458,29 @@
                                 title: {
                                     display: true,
                                     text: '温度 (°C)',
-                                    color: '#333'
+                                    color: '#000',
+                                    font: {
+                                    size: 14,
+                                    weight: 'bold',
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                }
                                 },
                                 ticks: {
                                     callback: function(value) {
                                         return value + '°C';
                                     },
-                                    color: '#333'
+                                    color: '#000',
+                                    font: {
+                                    size: 12,
+                                    weight: 'bold',
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                },
+                                    stepSize: 5  // 控制Y轴刻度间隔
                                 },
                                 grid: {
-                                    color: 'rgba(0, 0, 0, 0.1)'
+                                    color: 'rgba(0, 0, 0, 0.15)',
+                                    lineWidth: 1,
+                                    drawBorder: true
                                 }
                             },
                             x: {
@@ -1200,17 +1489,20 @@
                                     text: '城市',
                                     color: '#000000',
                                     font: {
-                                        weight: 'bold'
-                                    }
+                                    weight: 'bold',
+                                    size: 14,
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                }
                                 },
                                 ticks: {
                                     maxRotation: 45,
-                                    minRotation: 30,
+                                    minRotation: 45,
                                     color: '#000000',
                                     font: {
-                                        weight: 'bold',
-                                        size: 12  // 增加字体大小，确保可见
-                                    },
+                                    weight: 'bold',
+                                    size: 12,  // 增加字体大小，确保可见
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                },
                                     autoSkip: false,  // 不自动跳过标签
                                     maxTicksLimit: 10  // 最多显示10个标签
                                 },
@@ -1223,30 +1515,49 @@
                             title: {
                                 display: true,
                                 text: '热门城市温度实时对比',
-                                color: '#333',
+                                color: '#000',
                                 font: {
-                                    size: 16,
-                                    weight: 'bold'
+                                    size: 18,
+                                    weight: 'bold',
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 20
                                 }
                             },
                             legend: {
                                 display: true,
                                 position: 'top',
                                 labels: {
-                                    color: '#333'
+                                    color: '#000',
+                                    font: {
+                                    size: 13,
+                                    weight: 'bold',
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                }
                                 }
                             },
                             tooltip: {
                                 enabled: true,
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                backgroundColor: 'rgba(0, 0, 0, 0.85)',
                                 titleColor: '#fff',
                                 bodyColor: '#fff',
-                                borderColor: '#333',
-                                borderWidth: 1
+                                borderColor: '#555',
+                                borderWidth: 1,
+                                padding: 12,
+                                cornerRadius: 8,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                bodyFont: {
+                                    size: 13
+                                }
                             }
                         },
                         animation: {
-                            duration: 0 // 禁用动画以提高稳定性
+                            duration: 300 // 较短的动画以提高用户体验
                         }
                     }
                 });
@@ -1346,6 +1657,11 @@
                 return;
             }
             
+            // 检查网络状态
+            if (!checkNetworkStatus()) {
+                return;
+            }
+            
             // 显示加载状态
             const searchBtn = document.getElementById('historicalSearch');
             const originalText = searchBtn.innerHTML;
@@ -1356,16 +1672,46 @@
             const resultDiv = document.getElementById('historicalResult');
             resultDiv.style.display = 'none';
             
-            // 发送API请求
-            fetch(`/historical?city=${encodeURIComponent(city)}&date=${encodeURIComponent(date)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.error || `HTTP错误: ${response.status}`);
-                        });
-                    }
-                    return response.json();
+            // 定义重试配置
+            const maxRetries = 2;
+            let retryCount = 0;
+            
+            // 发送API请求（添加超时处理和重试机制）
+            function sendRequest() {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+                
+                return fetch(`/historical?city=${encodeURIComponent(city)}&date=${encodeURIComponent(date)}`, {
+                    signal: controller.signal
                 })
+                    .then(response => {
+                        clearTimeout(timeoutId);
+                        if (!response.ok) {
+                            return response.json().then(err => {
+                                throw new Error(err.error || `HTTP错误: ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        clearTimeout(timeoutId);
+                        
+                        // 处理超时错误，进行重试
+                        if ((error.name === 'AbortError' || error.name === 'TimeoutError') && retryCount < maxRetries) {
+                            retryCount++;
+                            console.log(`第${retryCount}次重试获取历史天气...`);
+                            // 短暂延迟后重试
+                            return new Promise(resolve => setTimeout(resolve, 500 * retryCount))
+                                .then(sendRequest);
+                        }
+                        
+                        // 其他错误或重试次数用尽，抛出异常
+                        throw error;
+                    });
+            }
+            
+            // 执行请求
+            sendRequest()
                 .then(data => {
                     if (data.error) {
                         showError(data.error);
@@ -1374,7 +1720,13 @@
                     }
                 })
                 .catch(error => {
-                    showError(`查询历史天气失败: ${error.message}`);
+                    if (error.name === 'AbortError') {
+                        showError('网络请求超时，请稍后重试');
+                    } else if (!navigator.onLine) {
+                        showError('当前网络不可用，请检查网络连接后重试');
+                    } else {
+                        showError(`查询历史天气失败: ${error.message}`);
+                    }
                     console.error('Error:', error);
                 })
                 .finally(() => {
@@ -1445,22 +1797,57 @@
                 return;
             }
 
+            // 检查网络状态
+            if (!checkNetworkStatus()) {
+                return;
+            }
+
             // 显示加载状态
             const searchBtn = document.getElementById('forecastSearchBtn');
             const originalText = searchBtn.innerHTML;
             searchBtn.disabled = true;
             searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 查询中...';
 
-            // 发送API请求
-            fetch(`/weekly-forecast?city=${encodeURIComponent(city)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.error || `HTTP错误: ${response.status}`);
-                        });
-                    }
-                    return response.json();
+            // 定义重试配置
+            const maxRetries = 2;
+            let retryCount = 0;
+            
+            // 发送API请求（添加超时处理和重试机制）
+            function sendRequest() {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+
+                return fetch(`/weekly-forecast?city=${encodeURIComponent(city)}`, {
+                    signal: controller.signal
                 })
+                    .then(response => {
+                        clearTimeout(timeoutId);
+                        if (!response.ok) {
+                            return response.json().then(err => {
+                                throw new Error(err.error || `HTTP错误: ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        clearTimeout(timeoutId);
+                        
+                        // 处理超时错误，进行重试
+                        if ((error.name === 'AbortError' || error.name === 'TimeoutError') && retryCount < maxRetries) {
+                            retryCount++;
+                            console.log(`第${retryCount}次重试获取未来天气预报...`);
+                            // 短暂延迟后重试
+                            return new Promise(resolve => setTimeout(resolve, 500 * retryCount))
+                                .then(sendRequest);
+                        }
+                        
+                        // 其他错误或重试次数用尽，抛出异常
+                        throw error;
+                    });
+            }
+            
+            // 执行请求
+            sendRequest()
                 .then(data => {
                     if (data.error) {
                         showError(data.error);
@@ -1470,7 +1857,13 @@
                     }
                 })
                 .catch(error => {
-                    showError(`查询未来一周天气预报失败: ${error.message}`);
+                    if (error.name === 'AbortError') {
+                        showError('网络请求超时，请稍后重试');
+                    } else if (!navigator.onLine) {
+                        showError('当前网络不可用，请检查网络连接后重试');
+                    } else {
+                        showError(`查询未来一周天气预报失败: ${error.message}`);
+                    }
                     console.error('Error:', error);
                 })
                 .finally(() => {
@@ -1482,26 +1875,112 @@
 
         // 绘制未来一周天气预报折线图
         function drawWeeklyForecastChart(data) {
+            console.log('=== 开始绘制未来一周天气预报图表 ===');
+            console.log('Chart对象是否存在:', typeof Chart !== 'undefined');
+            console.log('Chart版本:', typeof Chart !== 'undefined' ? Chart.version : '未加载');
+            console.log('预报数据:', data);
+            
+            // 确保图表容器和canvas元素存在
             const canvas = document.getElementById('weeklyForecastChart');
-            const ctx = canvas.getContext('2d');
-
+            let ctx = canvas ? canvas.getContext('2d') : null;
+            
+            if (!canvas) {
+                console.error('canvas元素不存在');
+                showStaticWeeklyForecastTable(data);
+                return;
+            }
+            
+            // 如果无法获取ctx，立即回退到静态表格
+            if (!ctx) {
+                console.error('无法获取Canvas上下文');
+                showStaticWeeklyForecastTable(data);
+                return;
+            }
+            
+            // 确保canvas可见，由Chart.js控制尺寸
+            canvas.style.display = 'block';
+            canvas.style.width = '100%';
+            canvas.style.height = '450px'; // 明确设置高度以确保可见
+            
+            // 移除手动设置的像素尺寸，让Chart.js完全控制
+            canvas.removeAttribute('width');
+            canvas.removeAttribute('height');
+            
+            console.log('Canvas样式设置:', canvas.style.width, 'x', canvas.style.height);
+            console.log('Canvas属性:', canvas.width, 'x', canvas.height);
+            console.log('Canvas类名:', canvas.className);
+            console.log('Canvas父容器:', canvas.parentNode);
+            console.log('Canvas父容器样式:', canvas.parentNode.style);
+            
+            // 检查Chart.js是否已正确加载
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js未正确加载');
+                // 尝试加载多个备用CDN
+                const cdnUrls = [
+                    'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+                    'https://unpkg.com/chart.js@4.4.0/dist/chart.umd.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js'
+                ];
+                
+                let currentCdnIndex = 0;
+                
+                const tryNextCdn = () => {
+                    if (currentCdnIndex >= cdnUrls.length) {
+                        console.error('所有Chart.js CDN加载失败');
+                        showStaticWeeklyForecastTable(data);
+                        return;
+                    }
+                    
+                    const script = document.createElement('script');
+                    script.src = cdnUrls[currentCdnIndex];
+                    script.onload = function() {
+                        console.log('Chart.js CDN加载成功:', cdnUrls[currentCdnIndex]);
+                        // 重新尝试绘制图表
+                        drawWeeklyForecastChart(data);
+                    };
+                    script.onerror = function() {
+                        console.error('Chart.js CDN加载失败:', cdnUrls[currentCdnIndex]);
+                        currentCdnIndex++;
+                        tryNextCdn();
+                    };
+                    document.head.appendChild(script);
+                };
+                
+                tryNextCdn();
+                return;
+            }
+            
             // 销毁已存在的图表实例
             if (window.weeklyForecastChart && typeof window.weeklyForecastChart.destroy === 'function') {
                 try {
                     window.weeklyForecastChart.destroy();
                     window.weeklyForecastChart = null;
+                    console.log('已销毁旧图表实例');
                 } catch (error) {
                     console.error('销毁图表失败:', error);
                     // 如果销毁失败，尝试重新创建canvas
                     const newCanvas = document.createElement('canvas');
                     newCanvas.id = 'weeklyForecastChart';
-                    newCanvas.width = canvas.width;
-                    newCanvas.height = canvas.height;
+                    newCanvas.className = 'chart-canvas'; // 添加正确的CSS类
                     canvas.parentNode.replaceChild(newCanvas, canvas);
                     // 重新获取canvas引用
                     const updatedCanvas = document.getElementById('weeklyForecastChart');
+                    // 设置样式
+                    updatedCanvas.style.display = 'block';
+                    updatedCanvas.style.width = '100%';
+                    updatedCanvas.style.height = 'auto';
+                    // 移除手动设置的像素尺寸，让Chart.js完全控制
+                    updatedCanvas.removeAttribute('width');
+                    updatedCanvas.removeAttribute('height');
+                    // 重新获取上下文
                     ctx = updatedCanvas.getContext('2d');
+                    console.log('已重新创建canvas和上下文');
+                    console.log('新Canvas样式:', updatedCanvas.style.width, 'x', updatedCanvas.style.height);
+                    console.log('新Canvas类名:', updatedCanvas.className);
                 }
+            } else {
+                window.weeklyForecastChart = null;
+                console.log('无旧图表实例需要销毁');
             }
 
             try {
@@ -1510,8 +1989,41 @@
                     const date = new Date(item.date);
                     return `${date.getMonth() + 1}/${date.getDate()}`;
                 });
-                const maxTemps = forecast.map(item => item.max_temp);
-                const minTemps = forecast.map(item => item.min_temp);
+                
+                // 处理温度数据，确保都是数字类型
+                const maxTemps = forecast.map(item => {
+                    if (item.max_temp === null || item.max_temp === undefined) {
+                        return 0;
+                    }
+                    if (typeof item.max_temp === 'string') {
+                        const cleanTemp = item.max_temp.replace(/[°C℃ ]/g, '');
+                        const parsedTemp = parseFloat(cleanTemp);
+                        return isNaN(parsedTemp) ? 0 : parsedTemp;
+                    }
+                    return typeof item.max_temp === 'number' ? item.max_temp : 0;
+                });
+                
+                const minTemps = forecast.map(item => {
+                    if (item.min_temp === null || item.min_temp === undefined) {
+                        return 0;
+                    }
+                    if (typeof item.min_temp === 'string') {
+                        const cleanTemp = item.min_temp.replace(/[°C℃ ]/g, '');
+                        const parsedTemp = parseFloat(cleanTemp);
+                        return isNaN(parsedTemp) ? 0 : parsedTemp;
+                    }
+                    return typeof item.min_temp === 'number' ? item.min_temp : 0;
+                });
+
+                console.log('处理后的最高温度:', maxTemps);
+                console.log('处理后的最低温度:', minTemps);
+                
+                // 确保Canvas上下文有效
+                if (!ctx) {
+                    console.error('无法获取Canvas上下文');
+                    showStaticWeeklyForecastTable(data);
+                    return;
+                }
 
                 window.weeklyForecastChart = new Chart(ctx, {
                     type: 'line',
@@ -1521,18 +2033,30 @@
                             {
                                 label: '最高温度 (°C)',
                                 data: maxTemps,
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                fill: false,
-                                tension: 0.1
+                                borderColor: 'rgba(220, 53, 69, 1)', // 更鲜艳的红色
+                                backgroundColor: 'rgba(220, 53, 69, 0.3)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 3,
+                                pointRadius: 6,
+                                pointBackgroundColor: 'rgba(220, 53, 69, 1)',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 8
                             },
                             {
                                 label: '最低温度 (°C)',
                                 data: minTemps,
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                fill: false,
-                                tension: 0.1
+                                borderColor: 'rgba(13, 110, 253, 1)', // 更鲜艳的蓝色
+                                backgroundColor: 'rgba(13, 110, 253, 0.3)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 3,
+                                pointRadius: 6,
+                                pointBackgroundColor: 'rgba(13, 110, 253, 1)',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 8
                             }
                         ]
                     },
@@ -1541,7 +2065,10 @@
                         maintainAspectRatio: false,
                         layout: {
                             padding: {
-                                bottom: 20
+                                top: 10,
+                                right: 20,
+                                left: 20,
+                                bottom: 60
                             }
                         },
                         scales: {
@@ -1550,29 +2077,51 @@
                                 title: {
                                     display: true,
                                     text: '温度 (°C)',
-                                    color: '#333'
+                                    color: '#000',
+                                    font: {
+                                    size: 14,
+                                    weight: 'bold',
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                }
                                 },
                                 ticks: {
                                     callback: function(value) {
                                         return value + '°C';
                                     },
-                                    color: '#333'
+                                    color: '#000',
+                                    font: {
+                                    size: 12,
+                                    weight: 'bold',
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                },
+                                    stepSize: 3
                                 },
                                 grid: {
-                                    color: 'rgba(0, 0, 0, 0.1)'
+                                    color: 'rgba(0, 0, 0, 0.15)',
+                                    lineWidth: 1,
+                                    drawBorder: true
                                 }
                             },
                             x: {
                                 title: {
                                     display: true,
                                     text: '日期',
-                                    color: '#000000',
+                                    color: '#000',
                                     font: {
-                                        weight: 'bold'
-                                    }
+                                    weight: 'bold',
+                                    size: 14,
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                }
                                 },
                                 ticks: {
-                                    color: '#000000'
+                                    color: '#000',
+                                    font: {
+                                    size: 12,
+                                    weight: 'bold',
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                },
+                                    maxRotation: 45,
+                                    minRotation: 45
                                 },
                                 grid: {
                                     display: false
@@ -1583,26 +2132,45 @@
                             title: {
                                 display: true,
                                 text: `${data.city}未来一周温度变化趋势`,
-                                color: '#333',
+                                color: '#000',
                                 font: {
-                                    size: 16,
+                                    size: 18,
                                     weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 20
                                 }
                             },
                             legend: {
                                 display: true,
                                 position: 'top',
                                 labels: {
-                                    color: '#333'
+                                    color: '#000',
+                                    font: {
+                                    size: 13,
+                                    weight: 'bold',
+                                    family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                                },
+                                    padding: 15
                                 }
                             },
                             tooltip: {
                                 enabled: true,
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                backgroundColor: 'rgba(0, 0, 0, 0.85)',
                                 titleColor: '#fff',
                                 bodyColor: '#fff',
-                                borderColor: '#333',
+                                borderColor: '#555',
                                 borderWidth: 1,
+                                padding: 12,
+                                cornerRadius: 8,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                bodyFont: {
+                                    size: 13
+                                },
                                 callbacks: {
                                     label: function(context) {
                                         let label = context.dataset.label || '';
@@ -1617,8 +2185,12 @@
                                 }
                             }
                         },
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
                         animation: {
-                            duration: 0 // 禁用动画以提高稳定性
+                            duration: 500 // 适中的动画效果
                         }
                     }
                 });

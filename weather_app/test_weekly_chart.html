@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未来一周天气预报图表测试</title>
+    <!-- 引入Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <style>
+        .chart-canvas {
+            width: 100% !important;
+            height: 450px !important;
+        }
+        #chartContainer {
+            height: 500px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">未来一周天气预报图表测试</h1>
+        <div id="chartContainer" class="weather-card">
+            <canvas id="weeklyForecastChart" class="chart-canvas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // 模拟测试数据
+        const mockData = {
+            forecast: [
+                { date: '2023-06-15', max_temp: 28, min_temp: 18 },
+                { date: '2023-06-16', max_temp: 29, min_temp: 19 },
+                { date: '2023-06-17', max_temp: 30, min_temp: 20 },
+                { date: '2023-06-18', max_temp: 27, min_temp: 19 },
+                { date: '2023-06-19', max_temp: 26, min_temp: 18 },
+                { date: '2023-06-20', max_temp: 28, min_temp: 19 },
+                { date: '2023-06-21', max_temp: 31, min_temp: 21 }
+            ]
+        };
+
+        // 页面加载完成后绘制图表
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，开始绘制图表');
+            drawWeeklyForecastChart(mockData);
+        });
+
+        // 绘制未来一周天气预报折线图
+        function drawWeeklyForecastChart(data) {
+            console.log('=== 开始绘制未来一周天气预报图表 ===');
+            console.log('Chart对象是否存在:', typeof Chart !== 'undefined');
+            console.log('Chart版本:', typeof Chart !== 'undefined' ? Chart.version : '未加载');
+            console.log('预报数据:', data);
+            
+            // 确保图表容器和canvas元素存在
+            const canvas = document.getElementById('weeklyForecastChart');
+            
+            if (!canvas) {
+                console.error('canvas元素不存在');
+                return;
+            }
+            
+            // 确保canvas可见
+            canvas.style.display = 'block';
+            canvas.style.width = '100%';
+            canvas.style.height = '450px';
+            
+            console.log('Canvas样式设置:', canvas.style.width, 'x', canvas.style.height);
+            console.log('Canvas类名:', canvas.className);
+            
+            // 处理数据
+            const forecast = data.forecast;
+            const dates = forecast.map(item => {
+                const date = new Date(item.date);
+                return `${date.getMonth() + 1}/${date.getDate()}`;
+            });
+            
+            // 处理温度数据
+            const maxTemps = forecast.map(item => {
+                if (item.max_temp === null || item.max_temp === undefined) {
+                    return 0;
+                }
+                if (typeof item.max_temp === 'string') {
+                    const cleanTemp = item.max_temp.replace(/[°C℃ ]/g, '');
+                    const parsedTemp = parseFloat(cleanTemp);
+                    return isNaN(parsedTemp) ? 0 : parsedTemp;
+                }
+                return typeof item.max_temp === 'number' ? item.max_temp : 0;
+            });
+            
+            const minTemps = forecast.map(item => {
+                if (item.min_temp === null || item.min_temp === undefined) {
+                    return 0;
+                }
+                if (typeof item.min_temp === 'string') {
+                    const cleanTemp = item.min_temp.replace(/[°C℃ ]/g, '');
+                    const parsedTemp = parseFloat(cleanTemp);
+                    return isNaN(parsedTemp) ? 0 : parsedTemp;
+                }
+                return typeof item.min_temp === 'number' ? item.min_temp : 0;
+            });
+
+            console.log('处理后的日期:', dates);
+            console.log('处理后的最高温度:', maxTemps);
+            console.log('处理后的最低温度:', minTemps);
+            
+            // 获取Canvas上下文
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error('无法获取Canvas上下文');
+                return;
+            }
+            
+            // 销毁已存在的图表实例
+            if (window.weeklyForecastChart && typeof window.weeklyForecastChart.destroy === 'function') {
+                try {
+                    window.weeklyForecastChart.destroy();
+                    window.weeklyForecastChart = null;
+                    console.log('已销毁旧图表实例');
+                } catch (error) {
+                    console.error('销毁图表失败:', error);
+                }
+            }
+            
+            try {
+                // 创建新的图表实例
+                window.weeklyForecastChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: '最高温度 (°C)',
+                                data: maxTemps,
+                                borderColor: 'rgba(220, 53, 69, 1)',
+                                backgroundColor: 'rgba(220, 53, 69, 0.3)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 3,
+                                pointRadius: 6,
+                                pointBackgroundColor: 'rgba(220, 53, 69, 1)',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 8
+                            },
+                            {
+                                label: '最低温度 (°C)',
+                                data: minTemps,
+                                borderColor: 'rgba(13, 110, 253, 1)',
+                                backgroundColor: 'rgba(13, 110, 253, 0.3)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 3,
+                                pointRadius: 6,
+                                pointBackgroundColor: 'rgba(13, 110, 253, 1)',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 8
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                top: 10,
+                                right: 20,
+                                left: 20,
+                                bottom: 60
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: '温度 (°C)',
+                                    color: '#000',
+                                    font: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '°C';
+                                    },
+                                    color: '#000',
+                                    font: {
+                                        size: 12,
+                                        weight: 'bold'
+                                    },
+                                    stepSize: 3
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '日期',
+                                    color: '#000',
+                                    font: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    color: '#000',
+                                    font: {
+                                        size: 12,
+                                        weight: 'bold'
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '未来一周天气预报',
+                                color: '#000',
+                                font: {
+                                    size: 18,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 20
+                                }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: '#000',
+                                    font: {
+                                        size: 13,
+                                        weight: 'bold'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                enabled: true,
+                                backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                borderColor: '#555',
+                                borderWidth: 1,
+                                padding: 12,
+                                cornerRadius: 8,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                bodyFont: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 300
+                        }
+                    }
+                });
+                
+                console.log('图表实例创建成功');
+                console.log('Chart实例:', window.weeklyForecastChart);
+                
+                // 强制重绘图表
+                window.weeklyForecastChart.update('none');
+                console.log('图表更新完成');
+                
+            } catch (error) {
+                console.error('绘制图表失败:', error);
+                console.error('错误详情:', error.stack);
+            }
+        }
+    </script>
+</body>
+</html>
